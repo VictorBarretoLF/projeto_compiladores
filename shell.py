@@ -6,7 +6,8 @@ var
     valor1, valor2: integer;
 begin
     valor1 := 10;
-    valor2 := valor1 + 20;
+    valor2 := valor1 + 20.5;
+    > <
 end.
 """
 

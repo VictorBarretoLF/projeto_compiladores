@@ -22,7 +22,17 @@ TOKEN_ASSIGN = 'ASSIGN'
 TOKEN_SEMICOLON = 'SEMICOLON'
 TOKEN_COLON = 'COLON'
 TOKEN_PERIOD = 'PERIOD'
+
+# Operadores relacionais
+TOKEN_IGUAL = 'IGUAL'
+TOKEN_MENOR_QUE = 'MENOR_QUE'
+TOKEN_MAIOR_QUE = 'MAIOR_QUE'
+TOKEN_MENOR_OU_IGUAL = 'MENOR_OU_IGUAL'
+TOKEN_MAIOR_OU_IGUAL = 'MAIOR_OU_IGUAL'
+TOKEN_DIFERENTE = 'DIFERENTE'
+
 TOKEN_EOF = 'EOF'
+
 
 # Palavras-chave permitidas
 KEYWORDS = {
@@ -141,6 +151,29 @@ class Lexer:
                 erro = self.pular_comentario()
                 if erro: 
                     return [], erro
+            elif self.char_atual == '=':
+                tokens.append(Token(TOKEN_IGUAL, '=', self.posicao.linha))
+                self.avancar()
+            elif self.char_atual == '<':
+                if self.proximo_caractere() == '>':
+                    self.avancar()
+                    self.avancar()
+                    tokens.append(Token(TOKEN_DIFERENTE, '<>', self.posicao.linha))
+                elif self.proximo_caractere() == '=':
+                    self.avancar()
+                    self.avancar()
+                    tokens.append(Token(TOKEN_MENOR_OU_IGUAL, '<=', self.posicao.linha))
+                else:
+                    tokens.append(Token(TOKEN_MENOR_QUE, '<', self.posicao.linha))
+                    self.avancar()
+            elif self.char_atual == '>':
+                if self.proximo_caractere() == '=':
+                    self.avancar()
+                    self.avancar()
+                    tokens.append(Token(TOKEN_MAIOR_OU_IGUAL, '>=', self.posicao.linha))
+                else:
+                    tokens.append(Token(TOKEN_MAIOR_QUE, '>', self.posicao.linha))
+                    self.avancar()
             else:
                 posicao_inicio = self.posicao.copiar()
                 char = self.char_atual
@@ -243,6 +276,9 @@ def classificar_token(token):
         return 'Número inteiro' if token.tipo == TOKEN_INT else 'Número real'
     elif token.tipo in {TOKEN_PLUS, TOKEN_MINUS, TOKEN_MULTIPLY, TOKEN_DIVIDE}:
         return 'Operador'
+    elif token.tipo in {TOKEN_IGUAL, TOKEN_MENOR_QUE, TOKEN_MAIOR_QUE, 
+                        TOKEN_MENOR_OU_IGUAL, TOKEN_MAIOR_OU_IGUAL, TOKEN_DIFERENTE}:
+        return 'Operador relacional'
     elif token.tipo == TOKEN_ASSIGN:
         return 'Atribuição'
     elif token.tipo in {TOKEN_SEMICOLON, TOKEN_COLON, TOKEN_PERIOD, TOKEN_COMMA}:
